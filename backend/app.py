@@ -23,17 +23,28 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Paths
+# Robust artifact path finder for local & Vercel serverless environments
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH = os.path.join(BASE_DIR, "model", "knn_model.joblib")
-SCALER_PATH = os.path.join(BASE_DIR, "model", "scaler.joblib")
-META_PATH = os.path.join(BASE_DIR, "model", "model_meta.json")
 
-# Fallbacks to workspace root if needed
-if not os.path.exists(MODEL_PATH) and os.path.exists(os.path.join(os.path.dirname(BASE_DIR), "knn_model.joblib")):
-    MODEL_PATH = os.path.join(os.path.dirname(BASE_DIR), "knn_model.joblib")
-    SCALER_PATH = os.path.join(os.path.dirname(BASE_DIR), "scaler.joblib")
-    META_PATH = os.path.join(os.path.dirname(BASE_DIR), "model_meta.json")
+def find_artifact(filename):
+    possible_paths = [
+        os.path.join(BASE_DIR, "model", filename),
+        os.path.join(BASE_DIR, filename),
+        os.path.join(os.path.dirname(BASE_DIR), "backend", "model", filename),
+        os.path.join(os.path.dirname(BASE_DIR), "model", filename),
+        os.path.join(os.path.dirname(BASE_DIR), filename),
+        os.path.join(os.getcwd(), "backend", "model", filename),
+        os.path.join(os.getcwd(), "model", filename),
+        os.path.join(os.getcwd(), filename),
+    ]
+    for p in possible_paths:
+        if os.path.exists(p):
+            return p
+    return os.path.join(BASE_DIR, "model", filename)
+
+MODEL_PATH = find_artifact("knn_model.joblib")
+SCALER_PATH = find_artifact("scaler.joblib")
+META_PATH = find_artifact("model_meta.json")
 
 knn_model = None
 scaler = None
@@ -42,13 +53,19 @@ model_meta = {}
 def load_artifacts():
     global knn_model, scaler, model_meta
     try:
-        if os.path.exists(MODEL_PATH) and os.path.exists(SCALER_PATH):
-            knn_model = joblib.load(MODEL_PATH)
-            scaler = joblib.load(SCALER_PATH)
-            if os.path.exists(META_PATH):
-                with open(META_PATH, "r") as f:
+        m_path = find_artifact("knn_model.joblib")
+        s_path = find_artifact("scaler.joblib")
+        meta_path = find_artifact("model_meta.json")
+        
+        if os.path.exists(m_path) and os.path.exists(s_path):
+            knn_model = joblib.load(m_path)
+            scaler = joblib.load(s_path)
+            if os.path.exists(meta_path):
+                with open(meta_path, "r") as f:
                     model_meta = json.load(f)
-            print("Model and Scaler loaded successfully.")
+            print(f"Model and Scaler loaded successfully from: {m_path}")
+        else:
+            print(f"Model artifacts not found at: {m_path}, {s_path}")
     except Exception as e:
         print(f"Error loading artifacts: {e}")
 

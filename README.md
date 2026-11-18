@@ -160,3 +160,37 @@ Once launched:
 }
 ```
 
+
+
+---
+
+## ⚡ Deploying to Vercel
+
+This repository is pre-configured for instant deployment on **Vercel** with full support for both the **Next.js Frontend** and the **FastAPI Backend Serverless Functions**.
+
+### How It Works on Vercel
+1. **Entrypoint Resolution**:
+   - `pyproject.toml` defines `[tool.vercel] entrypoint = "backend.app:app"` to tell Vercel's Python runtime where the FastAPI app lives.
+   - `api/index.py`, `app.py`, `main.py`, and `index.py` are provided to support all Vercel detection methods.
+2. **Unified Routing (`vercel.json`)**:
+   - Requests matching `/api/*` route to the Python FastAPI backend (`api/index.py`).
+   - All other routes serve the Next.js production frontend (`frontend/package.json`).
+3. **Environment Adaptation**:
+   - `frontend/app/page.tsx` automatically switches to relative `/api/...` calls in production, eliminating localhost connection issues.
+   - `requirements.txt` is optimized for fast, lightweight serverless installation without heavy non-runtime dependencies.
+
+### Deploy Steps
+1. Push your changes to your GitHub repository:
+   ```bash
+   git add .
+   git commit -m "Configure Vercel deployment for FastAPI and Next.js"
+   git push origin main
+   ```
+2. In the [Vercel Dashboard](https://vercel.com/new):
+   - Import your GitHub repository (`AI-ASSET`).
+   - Keep the Root Directory as `./` (default).
+   - Click **Deploy**.
+3. Or deploy via Vercel CLI:
+   ```bash
+   vercel
+   ```

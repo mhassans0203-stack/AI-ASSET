@@ -1,0 +1,11 @@
+.git
+__pycache__
+*.pyc
+*.log
+.venv
+train.csv
+loan_prediction_knn.ipynb
+generate_notebook.py
+frontend/.next
+frontend/node_modules
+visualizations/
