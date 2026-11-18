@@ -1,5 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "env -u npm_config_cache_dir npm install --loglevel=error",
   "functions": {
     "api/index.py": {
       "maxDuration": 60,
