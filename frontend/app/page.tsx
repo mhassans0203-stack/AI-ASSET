@@ -103,36 +103,49 @@ export default function Home() {
   const [modelMeta, setModelMeta] = useState<ModelMeta | null>(null);
   const [showMetricsModal, setShowMetricsModal] = useState(false);
 
-  const API_BASE =
-    process.env.NEXT_PUBLIC_API_URL !== undefined
-      ? process.env.NEXT_PUBLIC_API_URL
-      : typeof window !== "undefined" &&
-        window.location.hostname !== "localhost" &&
-        window.location.hostname !== "127.0.0.1"
-      ? ""
-      : "http://localhost:8000";
+  const getApiUrl = (endpoint: string) => {
+    if (process.env.NEXT_PUBLIC_API_URL) {
+      return `${process.env.NEXT_PUBLIC_API_URL}${endpoint}`;
+    }
+    if (typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")) {
+      return `http://127.0.0.1:8000${endpoint}`;
+    }
+    return endpoint;
+  };
 
-  // Check backend health on mount
+  // Check backend health on mount with automatic fallbacks
   useEffect(() => {
     async function checkHealth() {
-      try {
-        const res = await fetch(`${API_BASE}/api/health`, { cache: "no-store" });
-        if (res.ok) {
-          setBackendHealth(true);
-          const metaRes = await fetch(`${API_BASE}/api/model-info`);
-          if (metaRes.ok) {
-            const meta = await metaRes.json();
-            setModelMeta(meta);
+      const endpointsToTry = [
+        getApiUrl("/api/health"),
+        "http://127.0.0.1:8000/api/health",
+        "/api/health"
+      ];
+      
+      let healthy = false;
+      for (const url of endpointsToTry) {
+        try {
+          const res = await fetch(url, { cache: "no-store" });
+          if (res.ok) {
+            setBackendHealth(true);
+            healthy = true;
+            const metaRes = await fetch(url.replace("/health", "/model-info")).catch(() => null);
+            if (metaRes && metaRes.ok) {
+              const meta = await metaRes.json();
+              setModelMeta(meta);
+            }
+            break;
           }
-        } else {
-          setBackendHealth(false);
+        } catch (err) {
+          // Try next fallback
         }
-      } catch (err) {
+      }
+      if (!healthy) {
         setBackendHealth(false);
       }
     }
     checkHealth();
-  }, [API_BASE]);
+  }, []);
 
   const handleChange = (field: keyof LoanForm, value: string | number) => {
     setForm((prev) => ({
@@ -152,30 +165,46 @@ export default function Home() {
     setLoading(true);
     setError(null);
 
-    try {
-      const res = await fetch(`${API_BASE}/api/predict`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(form)
-      });
+    const urlsToTry = [
+      getApiUrl("/api/predict"),
+      "http://127.0.0.1:8000/api/predict",
+      "/api/predict"
+    ];
+    let success = false;
+    let lastError: string | null = null;
 
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.detail || `Prediction failed with status ${res.status}`);
+    for (const url of urlsToTry) {
+      try {
+        const res = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(form)
+        });
+
+        if (res.ok) {
+          const data: PredictionResponse = await res.json();
+          setPrediction(data);
+          setBackendHealth(true);
+          success = true;
+          break;
+        } else {
+          const errData = await res.json().catch(() => ({}));
+          lastError = errData.detail || `Server returned error (${res.status})`;
+        }
+      } catch (err: any) {
+        lastError = err.message || "Network request failed";
       }
-
-      const data: PredictionResponse = await res.json();
-      setPrediction(data);
-    } catch (err: any) {
-      setError(
-        err.message ||
-        "Could not connect to FastAPI server. Ensure FastAPI is running on port 8000 (uvicorn app:app --port 8000)."
-      );
-    } finally {
-      setLoading(false);
     }
+
+    if (!success) {
+      setError(
+        lastError ||
+        "Could not connect to FastAPI server. Ensure FastAPI is running (python -m uvicorn backend.app:app --port 8000)."
+      );
+    }
+    setLoading(false);
   };
 
   const totalIncome = form.ApplicantIncome + form.CoapplicantIncome;
