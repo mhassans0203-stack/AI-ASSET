@@ -1,0 +1,159 @@
+{
+    "model_name": "K-Nearest Neighbors Classifier (Tuned)",
+    "optimal_k": 16,
+    "default_k": 5,
+    "accuracy_default": 0.8455284552845529,
+    "accuracy_tuned": 0.8536585365853658,
+    "features": [
+        "Gender",
+        "Married",
+        "Dependents",
+        "Education",
+        "Self_Employed",
+        "ApplicantIncome",
+        "CoapplicantIncome",
+        "LoanAmount",
+        "Loan_Amount_Term",
+        "Credit_History",
+        "Property_Area"
+    ],
+    "feature_count": 11,
+    "imputation_values": {
+        "ApplicantIncome": 3812.5,
+        "CoapplicantIncome": 1188.5,
+        "LoanAmount": 128.0,
+        "Loan_Amount_Term": 360.0,
+        "Gender": "Male",
+        "Married": "Yes",
+        "Dependents": "0",
+        "Education": "Graduate",
+        "Self_Employed": "No",
+        "Credit_History": 1.0,
+        "Property_Area": "Semiurban"
+    },
+    "encoding_dict": {
+        "Gender": {
+            "Female": 0,
+            "Male": 1
+        },
+        "Married": {
+            "No": 0,
+            "Yes": 1
+        },
+        "Dependents": {
+            "0": 0,
+            "1": 1,
+            "2": 2,
+            "3+": 3
+        },
+        "Education": {
+            "Graduate": 1,
+            "Not Graduate": 0
+        },
+        "Self_Employed": {
+            "No": 0,
+            "Yes": 1
+        },
+        "Property_Area": {
+            "Rural": 0,
+            "Semiurban": 1,
+            "Urban": 2
+        },
+        "Loan_Status": {
+            "N": 0,
+            "Y": 1
+        }
+    },
+    "confusion_matrix_default": [
+        [
+            22,
+            16
+        ],
+        [
+            3,
+            82
+        ]
+    ],
+    "confusion_matrix_tuned": [
+        [
+            21,
+            17
+        ],
+        [
+            1,
+            84
+        ]
+    ],
+    "k_experiments": [
+        {
+            "k": 1,
+            "train_acc": 1.0,
+            "test_acc": 0.7642276422764228,
+            "cv_mean": 0.6783549783549783,
+            "cv_std": 0.04904201964743108
+        },
+        {
+            "k": 3,
+            "train_acc": 0.8329938900203666,
+            "test_acc": 0.8292682926829268,
+            "cv_mean": 0.7434343434343434,
+            "cv_std": 0.03743108483265745
+        },
+        {
+            "k": 5,
+            "train_acc": 0.8167006109979633,
+            "test_acc": 0.8455284552845529,
+            "cv_mean": 0.782106782106782,
+            "cv_std": 0.013304295076088163
+        },
+        {
+            "k": 7,
+            "train_acc": 0.8126272912423625,
+            "test_acc": 0.8455284552845529,
+            "cv_mean": 0.7800247371675944,
+            "cv_std": 0.010692925044675821
+        },
+        {
+            "k": 9,
+            "train_acc": 0.8024439918533605,
+            "test_acc": 0.8536585365853658,
+            "cv_mean": 0.7841063698206556,
+            "cv_std": 0.007799076200586005
+        },
+        {
+            "k": 11,
+            "train_acc": 0.7963340122199593,
+            "test_acc": 0.8455284552845529,
+            "cv_mean": 0.7902288188002473,
+            "cv_std": 0.015180641674771825
+        },
+        {
+            "k": 15,
+            "train_acc": 0.7942973523421588,
+            "test_acc": 0.8536585365853658,
+            "cv_mean": 0.7881673881673882,
+            "cv_std": 0.012207325052634856
+        },
+        {
+            "k": 17,
+            "train_acc": 0.790224032586558,
+            "test_acc": 0.8455284552845529,
+            "cv_mean": 0.79428983714698,
+            "cv_std": 0.007789207778596551
+        },
+        {
+            "k": 21,
+            "train_acc": 0.7881873727087576,
+            "test_acc": 0.8373983739837398,
+            "cv_mean": 0.7922490208204493,
+            "cv_std": 0.010598760950147699
+        },
+        {
+            "k": 25,
+            "train_acc": 0.7922606924643585,
+            "test_acc": 0.8292682926829268,
+            "cv_mean": 0.7902288188002473,
+            "cv_std": 0.010271511247075659
+        }
+    ]
+}
