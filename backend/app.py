@@ -104,6 +104,7 @@ def read_root():
     }
 
 @app.get("/api/health")
+@app.get("/health")
 def health_check():
     if knn_model is None or scaler is None:
         load_artifacts()
@@ -115,12 +116,14 @@ def health_check():
     }
 
 @app.get("/api/model-info")
+@app.get("/model-info")
 def get_model_info():
     if not model_meta:
         load_artifacts()
     return model_meta
 
 @app.post("/api/predict", response_model=PredictionResponse)
+@app.post("/predict", response_model=PredictionResponse)
 def predict_loan(application: LoanApplicationRequest):
     global knn_model, scaler
     if knn_model is None or scaler is None:
