@@ -1,8 +1,9 @@
 @echo off
-title Loan Prediction AI - Server Launcher
+title Loan Prediction AI - Next.js App
 echo ==============================================================
-echo Starting Loan Prediction KNN Backend and Next.js Frontend
+echo Starting Loan Prediction Next.js Web Application
+echo Local URL: http://localhost:3000
 echo ==============================================================
-python run_servers.py
+start http://localhost:3000
+cmd.exe /c "npm.cmd run start"
 pause
-
